@@ -1,0 +1,23 @@
+Package reservoir samples values uniformly at random
+from an unbounded sequence of inputs.
+
+import "kr.dev/reservoir"
+
+For instance, errors. If you have more errors than
+you know what to do with, and you can't read them all
+or even store them all, and you want to get a rough
+idea of what is going on, here's how you could do it:
+
+	rs := reservoir.New[error](100)
+	...
+	rs.Add(err) // add errors
+	...
+	rs.Add(err) // unlimited amount of errors
+	...
+	errs := make([]error, rs.Cap())
+	n := rs.Read(errs)
+	fmt.Println("sampled:", errs[:n])
+
+This will print up to 100 error values, sampled
+uniformly, without replacement, from the sequence
+of all errors that have been added to rs so far.

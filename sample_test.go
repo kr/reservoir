@@ -10,7 +10,7 @@ var s0 = "s0"
 
 func TestNew(t *testing.T) {
 	got := New[string](1)
-	want := &Sample[string]{data: make([]string, 1)}
+	want := &Sample[string]{data: make([]string, 0, 1)}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("New(1) = %v, want %v", got, want)
 	}
@@ -26,16 +26,16 @@ func TestReset(t *testing.T) {
 }
 
 func TestAdd0(t *testing.T) {
-	rs := &Sample[string]{data: make([]string, 2)}
+	rs := New[string](2)
 	rs.Add(s0)
 	if rs.n != 1 {
 		t.Errorf("after Add, n = %d, want 1", rs.n)
 	}
+	if len(rs.data) != 1 {
+		t.Errorf("after Add, len(data) = %d, want 1", len(rs.data))
+	}
 	if rs.data[0] != s0 {
 		t.Errorf("after Add, data[0] = %v, want s0", rs.data[0])
-	}
-	if rs.data[1] != "" {
-		t.Errorf(`after Add, data[1] = %v, want ""`, rs.data[1])
 	}
 }
 
@@ -57,13 +57,13 @@ func TestAddN(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	cases := []struct{ cap, param, added int }{
-		{1, 2, 3},
-		{3, 1, 2},
-		{2, 3, 1},
+	cases := []struct{ len, cap, param, added int }{
+		{1, 1, 2, 3},
+		{2, 3, 1, 2},
+		{1, 2, 3, 1},
 	}
 	for _, test := range cases {
-		rs := &Sample[string]{data: make([]string, test.cap), n: test.added}
+		rs := &Sample[string]{data: make([]string, test.len, test.cap), n: test.added}
 		got := make([]string, test.param)
 		ngot := rs.Read(got)
 		if ngot != 1 {

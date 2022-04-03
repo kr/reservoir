@@ -17,17 +17,18 @@ import "math/rand"
 // (It will not sample any items.)
 type Sample[T any] struct {
 	n    int
-	data []T // slice header is constant
+	data []T
 }
 
 // New returns a new Sample with capacity cap.
 func New[T any](cap int) *Sample[T] {
-	return &Sample[T]{data: make([]T, cap)}
+	return &Sample[T]{data: make([]T, 0, cap)}
 }
 
 // Reset empties s.
 func (s *Sample[T]) Reset() {
 	s.n = 0
+	s.data = s.data[:0]
 }
 
 // Add adds v to s with a probability
@@ -35,8 +36,8 @@ func (s *Sample[T]) Reset() {
 // at any time are chosen uniformly at random
 // from the inputs so far.
 func (s *Sample[T]) Add(v T) {
-	if s.n < len(s.data) {
-		s.data[s.n] = v
+	if s.n < cap(s.data) {
+		s.data = append(s.data, v)
 	} else if i := rand.Intn(s.n + 1); i < len(s.data) {
 		// Sample v with probability len(s.data)/n
 		// (where n is the number of items so far, including v).
@@ -52,16 +53,12 @@ func (s *Sample[T]) Add(v T) {
 // It returns the number of values read,
 // at most the capacity of s.
 func (s *Sample[T]) Read(p []T) int {
-	d := s.data
-	if s.n < len(d) {
-		d = d[:s.n]
-	}
-	return copy(p, d)
+	return copy(p, s.data)
 }
 
 // Cap returns the capacity of s.
 func (s *Sample[T]) Cap() int {
-	return len(s.data)
+	return cap(s.data)
 }
 
 // Added returns the number of calls to Add.

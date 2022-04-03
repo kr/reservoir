@@ -27,6 +27,10 @@ func New[T any](cap int) *Sample[T] {
 
 // Reset empties s.
 func (s *Sample[T]) Reset() {
+	var zero T
+	for i := range s.data {
+		s.data[i] = zero // don't leak
+	}
 	s.n = 0
 	s.data = s.data[:0]
 }
